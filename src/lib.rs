@@ -131,14 +131,3 @@ pub fn aos_to_soa<T0, T1, T2, T3, T4>(aos: Vec<(T0, T1, T2, T3, T4)>) -> (Vec<T0
     }
     soa
 }
-
-
-fn main() {
-    println!("Hello, world!");
-}
-
-
-
-
-
-

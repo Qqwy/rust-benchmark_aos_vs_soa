@@ -1,4 +1,4 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId, BatchSize};
+use criterion::{criterion_group, criterion_main, Criterion, BatchSize, Throughput};
 use quickcheck::{Gen, Arbitrary};
 
 use soa_bench::*;
@@ -14,7 +14,9 @@ fn gen_needles(gen: &mut Gen) -> ((u64, u32, u128, u64, bool), (u64, u32, u128, 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("search");
 
-    for size in [2, 16, 256, 1024] {
+    for size in [2, 4, 8, 16, 32, 64, 256, 1024, 2048, 4096, 8192, 16384, 32768] {
+        group.throughput(Throughput::Elements(size as u64));
+
         let mut gen = Gen::new(size);
         let mut aos: Vec<(u64, u32, u128, u64, bool)> = Arbitrary::arbitrary(&mut gen);
         aos.sort_unstable();
