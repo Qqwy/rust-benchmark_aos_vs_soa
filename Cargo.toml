@@ -13,6 +13,7 @@ name = "soa_bench"
 
 [dev-dependencies]
 criterion = "0.4.0"
+quickcheck = "1.0.3"
 
 
 [[bench]]

@@ -1,4 +1,4 @@
-pub fn partition_range_vec<T0, T1, T2, T3, T4>(vec: Vec<(T0, T1, T2, T3, T4)>, lower_needle: &(&T0, &T1, &T2, &T3, &T4), higher_needle: &(&T0, &T1, &T2, &T3, &T4)) -> (usize, usize)
+pub fn partition_range_vec<T0, T1, T2, T3, T4>(vec: &Vec<(T0, T1, T2, T3, T4)>, lower_needle: &(&T0, &T1, &T2, &T3, &T4), higher_needle: &(&T0, &T1, &T2, &T3, &T4)) -> (usize, usize)
 where
     T0: Ord,
     T1: Ord,
@@ -15,7 +15,7 @@ where
     (lower, higher)
 }
 
-pub fn partition_range_vec_segmented<T0, T1, T2, T3, T4>(vec: Vec<(T0, T1, T2, T3, T4)>, lower_needle: &(&T0, &T1, &T2, &T3, &T4), higher_needle: &(&T0, &T1, &T2, &T3, &T4)) -> (usize, usize)
+pub fn partition_range_vec_segmented<T0, T1, T2, T3, T4>(vec: &Vec<(T0, T1, T2, T3, T4)>, lower_needle: &(&T0, &T1, &T2, &T3, &T4), higher_needle: &(&T0, &T1, &T2, &T3, &T4)) -> (usize, usize)
 where
     T0: Ord,
     T1: Ord,
@@ -67,7 +67,7 @@ where
     (lower, higher)
 }
 
-pub fn partition_range_soa<T0, T1, T2, T3, T4>(soa: (Vec<T0>, Vec<T1>, Vec<T2>, Vec<T3>, Vec<T4>), lower_needle: &(&T0, &T1, &T2, &T3, &T4), higher_needle: &(&T0, &T1, &T2, &T3, &T4)) -> (usize, usize)
+pub fn partition_range_soa<T0, T1, T2, T3, T4>(soa: &(Vec<T0>, Vec<T1>, Vec<T2>, Vec<T3>, Vec<T4>), lower_needle: &(&T0, &T1, &T2, &T3, &T4), higher_needle: &(&T0, &T1, &T2, &T3, &T4)) -> (usize, usize)
 where
     T0: Ord,
     T1: Ord,
@@ -119,6 +119,19 @@ where
     (lower, higher)
 }
 
+pub fn aos_to_soa<T0, T1, T2, T3, T4>(aos: Vec<(T0, T1, T2, T3, T4)>) -> (Vec<T0>, Vec<T1>, Vec<T2>, Vec<T3>, Vec<T4>) {
+    let len = aos.len();
+    let mut soa = (Vec::with_capacity(len), Vec::with_capacity(len), Vec::with_capacity(len), Vec::with_capacity(len), Vec::with_capacity(len));
+
+    for (e0, e1, e2, e3, e4) in aos {
+        soa.0.push(e0);
+        soa.1.push(e1);
+        soa.2.push(e2);
+        soa.3.push(e3);
+        soa.4.push(e4);
+    }
+    soa
+}
 
 
 fn main() {
