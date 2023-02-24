@@ -4,15 +4,30 @@ use quickcheck::{Gen, Arbitrary};
 
 use soa_bench::*;
 
-fn gen_needles(gen: &mut Gen) -> ((u64, u32, u128, u64, bool), (u64, u32, u128, u64, bool)) {
-    let needle1: (u64, u32, u128, u64, bool) = Arbitrary::arbitrary(gen);
-    let needle2: (u64, u32, u128, u64, bool) = Arbitrary::arbitrary(gen);
-    let lower_needle = std::cmp::min(needle1, needle2);
-    let higher_needle = std::cmp::max(needle1, needle2);
-    (lower_needle, higher_needle)
+fn gen_needles<T0, T1, T2, T3, T4>(gen: &mut Gen) -> ((T0, T1, T2, T3, T4), (T0, T1, T2, T3, T4))
+    where
+    T0: Ord + Arbitrary,
+    T1: Ord + Arbitrary,
+    T2: Ord + Arbitrary,
+    T3: Ord + Arbitrary,
+    T4: Ord + Arbitrary,
+{
+    let needle1: (T0, T1, T2, T3, T4) = Arbitrary::arbitrary(gen);
+    let needle2: (T0, T1, T2, T3, T4) = Arbitrary::arbitrary(gen);
+    let lower_needle = std::cmp::min(&needle1, &needle2);
+    let higher_needle = std::cmp::max(&needle1, &needle2);
+    (lower_needle.clone(), higher_needle.clone())
 }
 
-pub fn benchme(group: &mut BenchmarkGroup<WallTime>, name: &str, gen: &mut Gen, size: usize, fun: impl Fn(&(&u64, &u32, &u128, &u64, &bool), &(&u64, &u32, &u128, &u64, &bool)) -> (usize, usize)) {
+pub fn benchme<T0, T1, T2, T3, T4>(group: &mut BenchmarkGroup<WallTime>, name: &str, gen: &mut Gen, size: usize, fun: impl Fn(&(&T0, &T1, &T2, &T3, &T4), &(&T0, &T1, &T2, &T3, &T4)) -> (usize, usize))
+    where
+    T0: Ord + Arbitrary,
+    T1: Ord + Arbitrary,
+    T2: Ord + Arbitrary,
+    T3: Ord + Arbitrary,
+    T4: Ord + Arbitrary,
+
+{
     group.bench_with_input(name, &size, |b, _size| {
         b.iter_batched(||gen_needles(gen),|(lower_needle, higher_needle)| {
             let lower_needle = (&lower_needle.0, &lower_needle.1, &lower_needle.2, &lower_needle.3, &lower_needle.4);
@@ -22,8 +37,16 @@ pub fn benchme(group: &mut BenchmarkGroup<WallTime>, name: &str, gen: &mut Gen, 
     });
 }
 
-pub fn criterion_benchmark(c: &mut Criterion) {
-    let mut group = c.benchmark_group("search");
+pub fn criterion_benchmark<T0, T1, T2, T3, T4>(c: &mut Criterion)
+where
+    T0: Ord + Arbitrary,
+    T1: Ord + Arbitrary,
+    T2: Ord + Arbitrary,
+    T3: Ord + Arbitrary,
+    T4: Ord + Arbitrary,
+
+{
+    let mut group = c.benchmark_group(format!("search {}", std::any::type_name::<(T0, T1, T2, T3, T4)>()));
     let plot_config = PlotConfiguration::default()
         .summary_scale(AxisScale::Logarithmic);
     group.plot_config(plot_config);
@@ -35,7 +58,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
         let mut gen = Gen::new(size);
         // Generate an array with exactly `size` random elements
-        let mut aos: Vec<(u64, u32, u128, u64, bool)> = (0..size).map(|_| Arbitrary::arbitrary(&mut gen)).collect();
+        let mut aos: Vec<(T0, T1, T2, T3, T4)> = (0..size).map(|_| Arbitrary::arbitrary(&mut gen)).collect();
         aos.sort_unstable();
 
         benchme(&mut group, "aos", &mut gen, size, |l, h| partition_range_vec(&aos, l, h));
@@ -47,5 +70,16 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         benchme(&mut group, "soa_alt", &mut gen, size, |l, h| partition_range_soa_alt(&soa, l, h));
     }
 }
-criterion_group!(benches, criterion_benchmark);
+
+type E = u64;
+type A = u32;
+type V = u128;
+type T = u64;
+type R = bool;
+criterion_group!(benches,
+                 criterion_benchmark<E, A, V, T, R>,
+                 criterion_benchmark<A,V,E,T,R>,
+                 criterion_benchmark<V,A,E,T,R>,
+                 criterion_benchmark<T,E,A,V,R>
+);
 criterion_main!(benches);
