@@ -89,16 +89,20 @@ where
         aos.sort_unstable();
 
         benchme(&mut group, "aos", &mut gen, size, |l, h| {
-            partition_range_vec(&aos, l, h)
+            partition_range_aos(&aos, l, h)
         });
         benchme(&mut group, "aos_segmented", &mut gen, size, |l, h| {
-            partition_range_vec_segmented(&aos, l, h)
+            partition_range_aos_segmented(&aos, l, h)
         });
         benchme(&mut group, "aos_segmented_alt", &mut gen, size, |l, h| {
-            partition_range_vec_segmented_alt(&aos, l, h)
+            partition_range_aos_segmented_alt(&aos, l, h)
         });
 
-        let soa = aos_to_soa(aos);
+        // Make sure the vecs are allocated right next to each other,
+        // faking a full-blown struct-of-arrays implementation
+        let bump_arena = bumpalo::Bump::with_capacity(expected_soa_size(&aos));
+        let soa = aos_to_soa(&bump_arena, aos);
+
         benchme(&mut group, "soa", &mut gen, size, |l, h| {
             partition_range_soa(&soa, l, h)
         });
