@@ -353,6 +353,38 @@ where
     (lower, higher)
 }
 
+pub fn partition_range_aos_on_soa2<T0, T1, T2, T3, T4>(
+    soa: &Soa<'_, T0, T1, T2, T3, T4>,
+    lower_needle: &(&T0, &T1, &T2, &T3, &T4),
+    higher_needle: &(&T0, &T1, &T2, &T3, &T4),
+) -> (usize, usize)
+where
+    T0: Ord,
+    T1: Ord,
+    T2: Ord,
+    T3: Ord,
+    T4: Ord,
+{
+    let lower_needle_rest = (lower_needle.1, lower_needle.2, lower_needle.3, lower_needle.4);
+    let higher_needle_rest = (higher_needle.1, higher_needle.2, higher_needle.3, higher_needle.4);
+    let lower = soa.partition_point2(
+        |e0| {
+            e0.cmp(lower_needle.0)
+        },
+        |(e1, e2, e3, e4)| {
+            (*e1, *e2, *e3, *e4).cmp(&lower_needle_rest)
+    });
+    let higher = soa.partition_point2(
+        |e0| {
+            e0.cmp(higher_needle.0)
+        },
+        |(e1, e2, e3, e4)| {
+            (*e1, *e2, *e3, *e4).cmp(&higher_needle_rest)
+    });
+    (lower, higher)
+}
+
+
 use core::cmp::Ordering::{Less, Greater};
 impl<'a, T0, T1, T2, T3, T4> Soa<'a, T0, T1, T2, T3, T4> {
     // Adapted from core::slice::
@@ -408,8 +440,67 @@ impl<'a, T0, T1, T2, T3, T4> Soa<'a, T0, T1, T2, T3, T4> {
         unsafe { core::intrinsics::assume(left <= self.0.len()) };
         Err(left)
     }
+    // Adapted from core::slice::
+    #[must_use]
+    pub fn partition_point2<P, P2>(&self, mut pred1: P, mut pred2: P2) -> usize
+    where
+        P: FnMut(&T0) -> core::cmp::Ordering,
+        P2: FnMut(&(&T1, &T2, &T3, &T4)) -> core::cmp::Ordering,
+    {
+        // self.binary_search_by(|x| if pred(x) { Less } else { Greater }).unwrap_or_else(|i| i)
+        self.binary_search_by2(|one| pred1(one), |rest| pred2(rest)).unwrap_or_else(|i| i)
+    }
 
+    // Adapted from core::slice::
+    #[inline]
+    pub fn binary_search_by2<'b, F, F2>(&'b self, mut f: F, mut f2: F2) -> Result<usize, usize>
+    where
+        F: FnMut(&T0) -> core::cmp::Ordering,
+        F2: FnMut(&(&T1, &T2, &T3, &T4)) -> core::cmp::Ordering,
+    {
+        // INVARIANTS:
+        // - 0 <= left <= left + size = right <= self.len()
+        // - f returns Less for everything in self[..left]
+        // - f returns Greater for everything in self[right..]
+        let mut size = self.0.len();
+        let mut left = 0;
+        let mut right = size;
+        while left < right {
+            let mid = left + size / 2;
+
+            // SAFETY: the while condition means `size` is strictly positive, so
+            // `size/2 < size`.  Thus `left + size/2 < left + size`, which
+            // coupled with the `left + size <= self.len()` invariant means
+            // we have `left + size/2 < self.len()`, and this is in-bounds.
+            let cmp = f(unsafe { self.0.get_unchecked(mid)});
+            let cmp = cmp.then_with(|| {
+                let rest = unsafe { (self.1.get_unchecked(mid), self.2.get_unchecked(mid), self.3.get_unchecked(mid), self.4.get_unchecked(mid)) };
+                f2(&rest)
+            });
+
+            // The reason why we use if/else control flow rather than match
+            // is because match reorders comparison operations, which is perf sensitive.
+            // This is x86 asm for u8: https://rust.godbolt.org/z/8Y8Pra.
+            if cmp == Less {
+                left = mid + 1;
+            } else if cmp == Greater {
+                right = mid;
+            } else {
+                // SAFETY: same as the `get_unchecked` above
+                unsafe { core::intrinsics::assume(mid < self.0.len()) };
+                return Ok(mid);
+            }
+
+            size = right - left;
+        }
+
+        // SAFETY: directly true from the overall invariant.
+        // Note that this is `<=`, unlike the assume in the `Ok` path.
+        unsafe { core::intrinsics::assume(left <= self.0.len()) };
+        Err(left)
+    }
 }
+
 
 pub fn partition_range_soa_example(
     soa: &Soa<'_, u64, u32, u128, u64, bool>,

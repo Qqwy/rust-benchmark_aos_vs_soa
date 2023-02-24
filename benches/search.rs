@@ -74,8 +74,8 @@ where
     ));
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     group.plot_config(plot_config);
-    group.warm_up_time(Duration::from_millis(100));
-    group.measurement_time(Duration::from_millis(300));
+    group.warm_up_time(Duration::from_millis(50));
+    group.measurement_time(Duration::from_millis(150));
 
     for size in [
         1, 2, 4, 8, 16, 32, 64, 256, 1024, 2048, 4096, 8192, 16384, 32768, 65536,
@@ -108,6 +108,14 @@ where
         });
         benchme(&mut group, "soa_alt", &mut gen, size, |l, h| {
             partition_range_soa_alt(&soa, l, h)
+        });
+
+        benchme(&mut group, "soa_custom", &mut gen, size, |l, h| {
+            partition_range_aos_on_soa(&soa, l, h)
+        });
+
+        benchme(&mut group, "soa_custom2", &mut gen, size, |l, h| {
+            partition_range_aos_on_soa2(&soa, l, h)
         });
     }
 }
