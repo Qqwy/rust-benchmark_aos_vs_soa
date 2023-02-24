@@ -74,8 +74,8 @@ where
     ));
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     group.plot_config(plot_config);
-    group.warm_up_time(Duration::from_secs(1));
-    group.measurement_time(Duration::from_secs(3));
+    group.warm_up_time(Duration::from_millis(100));
+    group.measurement_time(Duration::from_millis(300));
 
     for size in [
         0, 1, 2, 4, 8, 16, 32, 64, 256, 1024, 2048, 4096, 8192, 16384, 32768, 65536,
