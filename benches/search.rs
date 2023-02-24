@@ -30,11 +30,12 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     group.warm_up_time(Duration::from_secs(1));
     group.measurement_time(Duration::from_secs(3));
 
-    for size in [2, 4, 8, 16, 32, 64, 256, 1024, 2048, 4096, 8192, 16384, 32768, 65536] {
+    for size in [0, 1, 2, 4, 8, 16, 32, 64, 256, 1024, 2048, 4096, 8192, 16384, 32768, 65536] {
         group.throughput(Throughput::Elements(size as u64));
 
         let mut gen = Gen::new(size);
-        let mut aos: Vec<(u64, u32, u128, u64, bool)> = Arbitrary::arbitrary(&mut gen);
+        // Generate an array with exactly `size` random elements
+        let mut aos: Vec<(u64, u32, u128, u64, bool)> = (0..size).map(|_| Arbitrary::arbitrary(&mut gen)).collect();
         aos.sort_unstable();
 
         benchme(&mut group, "aos", &mut gen, size, |l, h| partition_range_vec(&aos, l, h));
