@@ -117,6 +117,11 @@ criterion_group!(benches,
                  criterion_benchmark<E, A, V, T, R>,
                  criterion_benchmark<A, V, E, T, R>,
                  criterion_benchmark<V, A, E, T, R>,
-                 criterion_benchmark<T, E, A, V, R>
+                 criterion_benchmark<T, E, A, V, R>,
+
+                 criterion_benchmark<E, A, String, T, R>,
+                 criterion_benchmark<A, String, E, T, R>,
+                 criterion_benchmark<String, A, E, T, R>,
+                 criterion_benchmark<T, E, A, String, R>
 );
 criterion_main!(benches);

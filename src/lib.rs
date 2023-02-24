@@ -319,10 +319,67 @@ pub fn aos_to_soa<T0, T1, T2, T3, T4>(
     soa
 }
 
-pub fn example(
+pub fn partition_range_soa_example(
+    soa: &(Vec<u64>, Vec<u32>, Vec<u128>, Vec<u64>, Vec<bool>),
+    lower_needle: &(&u64, &u32, &u128, &u64, &bool),
+    higher_needle: &(&u64, &u32, &u128, &u64, &bool),
+) -> (usize, usize) {
+    partition_range_soa(soa, lower_needle, higher_needle)
+}
+
+pub fn partition_range_soa_alt_example(
     soa: &(Vec<u64>, Vec<u32>, Vec<u128>, Vec<u64>, Vec<bool>),
     lower_needle: &(&u64, &u32, &u128, &u64, &bool),
     higher_needle: &(&u64, &u32, &u128, &u64, &bool),
 ) -> (usize, usize) {
     partition_range_soa_alt(soa, lower_needle, higher_needle)
+}
+
+pub fn partition_range_vec_example(
+    vec: &Vec<(u64, u32, u128, u64, bool)>,
+    lower_needle: &(&u64, &u32, &u128, &u64, &bool),
+    higher_needle: &(&u64, &u32, &u128, &u64, &bool),
+) -> (usize, usize) {
+    partition_range_vec(vec, lower_needle, higher_needle)
+}
+
+pub fn partition_range_vec_segmented_example(
+    vec: &Vec<(u64, u32, u128, u64, bool)>,
+    lower_needle: &(&u64, &u32, &u128, &u64, &bool),
+    higher_needle: &(&u64, &u32, &u128, &u64, &bool),
+) -> (usize, usize) {
+    partition_range_vec_segmented(vec, lower_needle, higher_needle)
+}
+
+
+pub fn partition_range_soa_complex_example(
+    soa: &(Vec<u64>, Vec<u32>, Vec<String>, Vec<u64>, Vec<bool>),
+    lower_needle: &(&u64, &u32, &String, &u64, &bool),
+    higher_needle: &(&u64, &u32, &String, &u64, &bool),
+) -> (usize, usize) {
+    partition_range_soa(soa, lower_needle, higher_needle)
+}
+
+pub fn partition_range_soa_alt_complex_example(
+    soa: &(Vec<u64>, Vec<u32>, Vec<String>, Vec<u64>, Vec<bool>),
+    lower_needle: &(&u64, &u32, &String, &u64, &bool),
+    higher_needle: &(&u64, &u32, &String, &u64, &bool),
+) -> (usize, usize) {
+    partition_range_soa_alt(soa, lower_needle, higher_needle)
+}
+
+pub fn partition_range_vec_complex_example(
+    vec: &Vec<(u64, u32, String, u64, bool)>,
+    lower_needle: &(&u64, &u32, &String, &u64, &bool),
+    higher_needle: &(&u64, &u32, &String, &u64, &bool),
+) -> (usize, usize) {
+    partition_range_vec(vec, lower_needle, higher_needle)
+}
+
+pub fn partition_range_vec_segmented_complex_example(
+    vec: &Vec<(u64, u32, String, u64, bool)>,
+    lower_needle: &(&u64, &u32, &String, &u64, &bool),
+    higher_needle: &(&u64, &u32, &String, &u64, &bool),
+) -> (usize, usize) {
+    partition_range_vec_segmented(vec, lower_needle, higher_needle)
 }
