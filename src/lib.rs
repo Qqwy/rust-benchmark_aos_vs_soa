@@ -331,6 +331,78 @@ pub fn aos_to_soa<'a, T0, T1, T2, T3, T4>(bump: &'a Bump,
     Soa(soa.0, soa.1, soa.2, soa.3, soa.4)
 }
 
+pub fn partition_range_aos_on_soa<T0, T1, T2, T3, T4>(
+    soa: &Soa<'_, T0, T1, T2, T3, T4>,
+    lower_needle: &(&T0, &T1, &T2, &T3, &T4),
+    higher_needle: &(&T0, &T1, &T2, &T3, &T4),
+) -> (usize, usize)
+where
+    T0: Ord,
+    T1: Ord,
+    T2: Ord,
+    T3: Ord,
+    T4: Ord,
+{
+    
+}
+
+use core::cmp::Ordering::{Less, Greater};
+impl<'a, T0, T1, T2, T3, T4> Soa {
+    // Adapted from core::slice::
+    #[must_use]
+    pub fn partition_point<P>(&self, mut pred: P) -> usize
+    where
+        P: FnMut(&Soa<'_, T0, T1, T2, T3, T4>) -> bool,
+    {
+        self.binary_search_by(|x| if pred(x) { Less } else { Greater }).unwrap_or_else(|i| i)
+    }
+
+    // Adapted from core::slice::
+    #[inline]
+    pub fn binary_search_by<'b, F>(&'b self, mut f: F) -> Result<usize, usize>
+    where
+        F: FnMut(&'b (&T0, &T1, &T2, &T3, &T4)) -> core::cmp::Ordering,
+    {
+        // INVARIANTS:
+        // - 0 <= left <= left + size = right <= self.len()
+        // - f returns Less for everything in self[..left]
+        // - f returns Greater for everything in self[right..]
+        let mut size = self.len();
+        let mut left = 0;
+        let mut right = size;
+        while left < right {
+            let mid = left + size / 2;
+
+            // SAFETY: the while condition means `size` is strictly positive, so
+            // `size/2 < size`.  Thus `left + size/2 < left + size`, which
+            // coupled with the `left + size <= self.len()` invariant means
+            // we have `left + size/2 < self.len()`, and this is in-bounds.
+            let cmp = f(unsafe { self.get_unchecked(mid) });
+
+            // The reason why we use if/else control flow rather than match
+            // is because match reorders comparison operations, which is perf sensitive.
+            // This is x86 asm for u8: https://rust.godbolt.org/z/8Y8Pra.
+            if cmp == Less {
+                left = mid + 1;
+            } else if cmp == Greater {
+                right = mid;
+            } else {
+                // SAFETY: same as the `get_unchecked` above
+                unsafe { crate::intrinsics::assume(mid < self.len()) };
+                return Ok(mid);
+            }
+
+            size = right - left;
+        }
+
+        // SAFETY: directly true from the overall invariant.
+        // Note that this is `<=`, unlike the assume in the `Ok` path.
+        unsafe { crate::intrinsics::assume(left <= self.len()) };
+        Err(left)
+    }
+
+}
+
 pub fn partition_range_soa_example(
     soa: &Soa<'_, u64, u32, u128, u64, bool>,
     lower_needle: &(&u64, &u32, &u128, &u64, &bool),
