@@ -9,7 +9,7 @@ where
     let lower = vec[..].partition_point(|(ref e0, ref e1, ref e2, ref e3, ref e4)| {
         (e0, e1, e2, e3, e4).cmp(lower_needle).is_lt()
     });
-    let higher = vec[lower..].partition_point(|(ref e0, ref e1, ref e2, ref e3, ref e4)| {
+    let higher = lower + vec[lower..].partition_point(|(ref e0, ref e1, ref e2, ref e3, ref e4)| {
         (e0, e1, e2, e3, e4).cmp(higher_needle).is_lt()
     });
     (lower, higher)
@@ -27,40 +27,39 @@ where
         e0.cmp(lower_needle.0).is_lt()
     });
 
-    let higher = vec[lower..].partition_point(|(ref e0, _, _, _, _)| {
+    let higher = lower + vec[lower..].partition_point(|(ref e0, _, _, _, _)| {
         e0.cmp(higher_needle.0).is_lt()
     });
 
-
-    let lower = vec[lower..higher].partition_point(|(_, ref e1, _, _, _)| {
+    let lower = lower + vec[lower..higher].partition_point(|(_, ref e1, _, _, _)| {
         e1.cmp(lower_needle.1).is_lt()
     });
 
-    let higher = vec[lower..higher].partition_point(|(_, ref e1, _, _, _)| {
+    let higher = lower + vec[lower..higher].partition_point(|(_, ref e1, _, _, _)| {
         e1.cmp(higher_needle.1).is_lt()
     });
 
-    let lower = vec[lower..higher].partition_point(|(_, _, ref e2, _, _)| {
+    let lower = lower + vec[lower..higher].partition_point(|(_, _, ref e2, _, _)| {
         e2.cmp(lower_needle.2).is_lt()
     });
 
-    let higher = vec[lower..higher].partition_point(|(_, _, ref e2, _, _)| {
+    let higher = lower + vec[lower..higher].partition_point(|(_, _, ref e2, _, _)| {
         e2.cmp(higher_needle.2).is_lt()
     });
 
-    let lower = vec[lower..higher].partition_point(|(_, _, _, ref e3, _)| {
+    let lower = lower + vec[lower..higher].partition_point(|(_, _, _, ref e3, _)| {
         e3.cmp(lower_needle.3).is_lt()
     });
 
-    let higher = vec[lower..higher].partition_point(|(_, _, _, ref e3, _)| {
+    let higher = lower + vec[lower..higher].partition_point(|(_, _, _, ref e3, _)| {
         e3.cmp(higher_needle.3).is_lt()
     });
 
-    let lower = vec[lower..higher].partition_point(|(_, _, _, _, ref e4)| {
+    let lower = lower + vec[lower..higher].partition_point(|(_, _, _, _, ref e4)| {
         e4.cmp(lower_needle.4).is_lt()
     });
 
-    let higher = vec[lower..higher].partition_point(|(_, _, _, _, ref e4)| {
+    let higher = lower + vec[lower..higher].partition_point(|(_, _, _, _, ref e4)| {
         e4.cmp(higher_needle.4).is_lt()
     });
 
@@ -79,40 +78,40 @@ where
         e0.cmp(lower_needle.0).is_lt()
     });
 
-    let higher = soa.0[lower..].partition_point(|e0| {
+    let higher = lower + soa.0[lower..].partition_point(|e0| {
         e0.cmp(higher_needle.0).is_lt()
     });
 
 
-    let lower = soa.1[lower..higher].partition_point(|e1| {
+    let lower = lower + soa.1[lower..higher].partition_point(|e1| {
         e1.cmp(lower_needle.1).is_lt()
     });
 
-    let higher = soa.1[lower..higher].partition_point(|e1| {
+    let higher = lower + soa.1[lower..higher].partition_point(|e1| {
         e1.cmp(higher_needle.1).is_lt()
     });
 
-    let lower = soa.2[lower..higher].partition_point(|e2| {
+    let lower = lower + soa.2[lower..higher].partition_point(|e2| {
         e2.cmp(lower_needle.2).is_lt()
     });
 
-    let higher = soa.2[lower..higher].partition_point(|e2| {
+    let higher = lower + soa.2[lower..higher].partition_point(|e2| {
         e2.cmp(higher_needle.2).is_lt()
     });
 
-    let lower = soa.3[lower..higher].partition_point(|e3| {
+    let lower = lower + soa.3[lower..higher].partition_point(|e3| {
         e3.cmp(lower_needle.3).is_lt()
     });
 
-    let higher = soa.3[lower..higher].partition_point(|e3| {
+    let higher = lower + soa.3[lower..higher].partition_point(|e3| {
         e3.cmp(higher_needle.3).is_lt()
     });
 
-    let lower = soa.4[lower..higher].partition_point(|e4| {
+    let lower = lower + soa.4[lower..higher].partition_point(|e4| {
         e4.cmp(lower_needle.4).is_lt()
     });
 
-    let higher = soa.4[lower..higher].partition_point(|e4| {
+    let higher = lower + soa.4[lower..higher].partition_point(|e4| {
         e4.cmp(higher_needle.4).is_lt()
     });
 

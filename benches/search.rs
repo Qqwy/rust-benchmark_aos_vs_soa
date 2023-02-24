@@ -12,11 +12,13 @@ fn gen_needles(gen: &mut Gen) -> ((u64, u32, u128, u64, bool), (u64, u32, u128, 
 }
 
 pub fn criterion_benchmark(c: &mut Criterion) {
+    let mut group = c.benchmark_group("search");
+
     for size in [2, 16, 256, 1024] {
         let mut gen = Gen::new(size);
-        let aos: Vec<(u64, u32, u128, u64, bool)> = Arbitrary::arbitrary(&mut gen);
+        let mut aos: Vec<(u64, u32, u128, u64, bool)> = Arbitrary::arbitrary(&mut gen);
+        aos.sort_unstable();
 
-        let mut group = c.benchmark_group("search");
         group.bench_with_input("aos", &size, |b, _size| {
             b.iter_batched(||gen_needles(&mut gen),|(lower_needle, higher_needle)| {
                 let lower_needle = (&lower_needle.0, &lower_needle.1, &lower_needle.2, &lower_needle.3, &lower_needle.4);
