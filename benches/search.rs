@@ -78,7 +78,7 @@ where
     group.measurement_time(Duration::from_millis(300));
 
     for size in [
-        0, 1, 2, 4, 8, 16, 32, 64, 256, 1024, 2048, 4096, 8192, 16384, 32768, 65536,
+        1, 2, 4, 8, 16, 32, 64, 256, 1024, 2048, 4096, 8192, 16384, 32768, 65536,
     ] {
         group.throughput(Throughput::Elements(size as u64));
 
